@@ -18,26 +18,12 @@ class ExpenseController extends Controller
         $request->validate([
             'income_id' => 'nullable|exists:incomes,id',
             'client_id' => 'nullable|exists:clients,id',
-            'category' => 'required|in:ads,entertain,infrastructure,fuel_parking,technician_wage,bonus_location,bonus_night,marketing_fee,welfare,unexpected',
+            'category' => 'required|in:ads,entertain,fuel_parking,technician_wage,bonus_location,bonus_night',
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string',
         ]);
 
-        // Aturan Bisnis 1: Tentukan Status Approval
         $status = 'approved';
-
-        if ($request->category === 'unexpected') {
-            $status = 'pending';
-        } elseif ($request->category === 'marketing_fee' && $request->filled('income_id')) {
-            $income = Income::find($request->income_id);
-            if ($income && $income->gross_amount > 0) {
-                // Hitung persentase fee marketing terhadap gross_amount proyek
-                $percentage = ($request->amount / $income->gross_amount) * 100;
-                if ($percentage > 20) {
-                    $status = 'pending';
-                }
-            }
-        }
 
         // Simpan data pengeluaran
         $expense = Expense::create([
@@ -84,7 +70,7 @@ class ExpenseController extends Controller
         $request->validate([
             'income_id' => 'nullable|exists:incomes,id',
             'client_id' => 'nullable|exists:clients,id',
-            'category' => 'required|in:ads,entertain,infrastructure,fuel_parking,technician_wage,bonus_location,bonus_night,marketing_fee,welfare,unexpected',
+            'category' => 'required|in:ads,entertain,fuel_parking,technician_wage,bonus_location,bonus_night',
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string',
         ]);
@@ -93,22 +79,7 @@ class ExpenseController extends Controller
 
         // Update data pengeluaran sementara
         $expense->fill($request->only(['income_id', 'client_id', 'category', 'amount', 'description']));
-
-        // Recalculate status jika ada perubahan kategori/nilai
-        $status = 'approved';
-        if ($expense->category === 'unexpected') {
-            $status = 'pending';
-        } elseif ($expense->category === 'marketing_fee' && $expense->income_id) {
-            $income = Income::find($expense->income_id);
-            if ($income && $income->gross_amount > 0) {
-                $percentage = ($expense->amount / $income->gross_amount) * 100;
-                if ($percentage > 20) {
-                    $status = 'pending';
-                }
-            }
-        }
-        
-        $expense->status = $status;
+        $expense->status = 'approved';
         $expense->save();
 
         // Catat perubahan di AuditLog

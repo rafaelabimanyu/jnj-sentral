@@ -40,20 +40,16 @@
 
                 <!-- Kategori Pengeluaran -->
                 <div>
-                    <label for="category" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Kategori Biaya</label>
+                    <label for="category" class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Kategori Biaya Operasional</label>
                     <select id="category" name="category" required
                         class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-700 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200">
                         <option value="" disabled selected>Pilih Kategori...</option>
                         <option value="fuel_parking">Operasional Lapangan (Bensin/Parkir)</option>
                         <option value="technician_wage">Upah Teknisi Harian (Flat)</option>
-                        <option value="unexpected">Biaya Tak Terduga (Darurat)</option>
-                        <option value="marketing_fee">Fee Marketing (Komisi)</option>
                         <option value="ads">Iklan / Ads</option>
                         <option value="entertain">Biaya Entertain (Akuisisi Klien)</option>
-                        <option value="infrastructure">Infrastruktur (WiFi, Listrik, Kantor)</option>
                         <option value="bonus_location">Bonus Lokasi Tambahan</option>
                         <option value="bonus_night">Bonus Kerja Malam / Lembur</option>
-                        <option value="welfare">Kesejahteraan (Family Gathering)</option>
                     </select>
                 </div>
 

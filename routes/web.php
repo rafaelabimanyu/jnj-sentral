@@ -7,6 +7,8 @@ use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\MarketingFeeController;
+use App\Http\Controllers\OverheadExpenseController;
 
 // Rute Publik (Autentikasi)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -41,6 +43,15 @@ Route::middleware(['auth'])->group(function () {
         // Transaksi Pendapatan & Pengeluaran
         Route::resource('expenses', ExpenseController::class)->only(['store', 'update', 'index']);
         Route::resource('incomes', IncomeController::class)->only(['store', 'update', 'index']);
+
+        // Module 1: Manajemen Komisi & Fee Marketing
+        Route::get('/marketing-fees', [MarketingFeeController::class, 'index'])->name('marketing_fees.index');
+        Route::post('/marketing-fees', [MarketingFeeController::class, 'store'])->name('marketing_fees.store');
+        Route::patch('/marketing-fees/{marketingFee}/pay', [MarketingFeeController::class, 'markAsPaid'])->name('marketing_fees.pay');
+
+        // Module 2: Overhead & Manajemen Ekstra
+        Route::get('/overhead-expenses', [OverheadExpenseController::class, 'index'])->name('overhead_expenses.index');
+        Route::post('/overhead-expenses', [OverheadExpenseController::class, 'store'])->name('overhead_expenses.store');
     });
 
     // Route Group untuk Admin Website / Developer
