@@ -12,46 +12,74 @@ use Illuminate\Support\Facades\DB;
 class FieldOperationExpenseController extends Controller
 {
     /**
-     * Tampilkan halaman utama Operasional Lapangan & Teknisi.
+     * Tampilkan Dashboard Analytic & Riwayat Log Operasional Lapangan.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $currentMonth = Carbon::now()->month;
-        $currentYear = Carbon::now()->year;
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        $search = $request->input('search');
 
-        // Metric 1: Total Upah Teknisi Bulan Ini
-        $totalWages = FieldOperationTechnician::whereHas('fieldOperation', function ($q) use ($currentMonth, $currentYear) {
-            $q->whereMonth('operation_date', $currentMonth)
-              ->whereYear('operation_date', $currentYear);
-        })->sum('wage_amount');
+        // Query Master Operasional Lapangan
+        $query = FieldOperation::with(['technicians', 'creator']);
 
-        // Metric 2: Total Operasional Bensin & Parkir Bulan Ini
-        $totalOperational = FieldOperation::whereMonth('operation_date', $currentMonth)
-            ->whereYear('operation_date', $currentYear)
-            ->sum('bensin_parkir_fee');
+        if ($startDate && $endDate) {
+            $query->whereBetween('operation_date', [$startDate, $endDate]);
+        } else {
+            // Default: Month to date (Current Month)
+            $currentMonth = Carbon::now()->month;
+            $currentYear = Carbon::now()->year;
+            $query->whereMonth('operation_date', $currentMonth)
+                  ->whereYear('operation_date', $currentYear);
+        }
 
-        // Metric 3: Total Entertain & Bonus Lembur Bulan Ini
-        $totalEntertainBonus = FieldOperation::whereMonth('operation_date', $currentMonth)
-            ->whereYear('operation_date', $currentYear)
-            ->selectRaw('SUM(entertain_fee + bonus_fee) as total')
-            ->value('total') ?? 0;
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhereHas('technicians', function ($t) use ($search) {
+                      $t->where('technician_name', 'like', "%{$search}%");
+                  });
+            });
+        }
 
-        // Metric 4: Total Pengeluaran Lapangan Bulan Ini
+        // Summary Metrics Calculation
+        $operationsForMetrics = (clone $query)->get();
+
+        $totalWages = $operationsForMetrics->sum(function ($op) {
+            return $op->technicians->sum('wage_amount');
+        });
+
+        $totalOperational = $operationsForMetrics->sum('bensin_parkir_fee');
+        $totalEntertainBonus = $operationsForMetrics->sum(function ($op) {
+            return $op->entertain_fee + $op->bonus_fee;
+        });
+
         $totalOverall = $totalWages + $totalOperational + $totalEntertainBonus;
 
-        // Query Master-Detail Operasional Lapangan
-        $operations = FieldOperation::with(['technicians', 'creator'])
-            ->orderBy('operation_date', 'desc')
+        // Paginated List
+        $operations = $query->orderBy('operation_date', 'desc')
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('admin_ops.field_operations', compact(
+        return view('admin_ops.field_operations.index', compact(
             'totalWages',
             'totalOperational',
             'totalEntertainBonus',
             'totalOverall',
-            'operations'
+            'operations',
+            'startDate',
+            'endDate',
+            'search'
         ));
+    }
+
+    /**
+     * Tampilkan Halaman Form Data Entry Operasional Lapangan Baru.
+     */
+    public function create()
+    {
+        return view('admin_ops.field_operations.create');
     }
 
     /**
@@ -117,6 +145,7 @@ class FieldOperationExpenseController extends Controller
             ]);
         });
 
-        return redirect()->back()->with('success', 'Transaksi Operasional Lapangan & Teknisi berhasil disimpan.');
+        return redirect()->route('admin_ops.field_operations.index')
+            ->with('success', 'Transaksi Operasional Lapangan & Teknisi berhasil disimpan.');
     }
 }

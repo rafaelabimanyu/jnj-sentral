@@ -58,6 +58,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Module 3: Operasional Lapangan & Teknisi
         Route::get('/field-operations', [FieldOperationExpenseController::class, 'index'])->name('field_operations.index');
+        Route::get('/field-operations/create', [FieldOperationExpenseController::class, 'create'])->name('field_operations.create');
         Route::post('/field-operations', [FieldOperationExpenseController::class, 'store'])->name('field_operations.store');
     });
 
