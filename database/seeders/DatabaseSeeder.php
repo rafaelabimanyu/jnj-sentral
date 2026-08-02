@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ClientSeeder::class,
             MarketerSeeder::class,
+            TechnicianSeeder::class,
             FieldOperationSeeder::class,
         ]);
     }

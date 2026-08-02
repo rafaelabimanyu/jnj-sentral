@@ -162,9 +162,12 @@
                             <td class="py-4 px-4">
                                 <div class="flex flex-wrap gap-1.5 max-w-xs">
                                     @foreach($op->technicians as $tech)
-                                        <span class="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-flex items-center space-x-1">
-                                            <span>{{ $tech->technician_name }}:</span>
-                                            <span class="font-extrabold text-brandGreen">Rp {{ number_format($tech->wage_amount, 0, ',', '.') }}</span>
+                                        @php
+                                            $isSenior = optional($tech->technician)->level === 'Senior';
+                                        @endphp
+                                        <span class="px-2 py-0.5 rounded-lg text-[10px] font-semibold {{ $isSenior ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-blue-50 text-blue-800 border-blue-200' }} border inline-flex items-center space-x-1">
+                                            <span>{{ optional($tech->technician)->name ?? 'N/A' }} <span class="text-[9px] font-normal text-slate-400">({{ optional($tech->technician)->level ?? '-' }})</span>:</span>
+                                            <span class="font-extrabold text-slate-800">Rp {{ number_format($tech->wage_amount, 0, ',', '.') }}</span>
                                         </span>
                                     @endforeach
                                 </div>

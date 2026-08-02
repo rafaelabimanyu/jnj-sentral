@@ -7,15 +7,24 @@
     entertainFee: '{{ old('entertain_fee', '0') }}',
     bonusFee: '{{ old('bonus_fee', '0') }}',
     fileName: '',
-    technicians: [
-        { technician_name: '', wage_amount: '' }
+    seniors: [
+        { technician_id: '', wage_amount: '' }
     ],
-    addTechnician() {
-        this.technicians.push({ technician_name: '', wage_amount: '' });
+    juniors: [],
+    addSenior() {
+        this.seniors.push({ technician_id: '', wage_amount: '' });
     },
-    removeTechnician(index) {
-        if (this.technicians.length > 1) {
-            this.technicians.splice(index, 1);
+    removeSenior(index) {
+        if (this.seniors.length > 0) {
+            this.seniors.splice(index, 1);
+        }
+    },
+    addJunior() {
+        this.juniors.push({ technician_id: '', wage_amount: '' });
+    },
+    removeJunior(index) {
+        if (this.juniors.length > 0) {
+            this.juniors.splice(index, 1);
         }
     },
     handleFileSelect(e) {
@@ -24,8 +33,14 @@
             this.fileName = file.name;
         }
     },
+    get totalSeniorWages() {
+        return this.seniors.reduce((sum, s) => sum + (parseFloat(s.wage_amount) || 0), 0);
+    },
+    get totalJuniorWages() {
+        return this.juniors.reduce((sum, j) => sum + (parseFloat(j.wage_amount) || 0), 0);
+    },
     get totalWages() {
-        return this.technicians.reduce((sum, t) => sum + (parseFloat(t.wage_amount) || 0), 0);
+        return this.totalSeniorWages + this.totalJuniorWages;
     },
     get grandTotalCost() {
         let bp = parseFloat(this.bensinParkirFee) || 0;
@@ -56,7 +71,7 @@
         <div class="pb-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
             <div>
                 <h3 class="text-sm font-bold text-brandNavy uppercase tracking-wider">Form Terpadu Input Operasional</h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">Isi rincian tim teknisi dan pengeluaran finansial di bawah ini.</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Pilih master data teknisi (Senior & Junior) dan isi nominal upah serta pengeluaran.</p>
             </div>
             <!-- Sticky / Prominent Realtime Total Cost Badge -->
             <div class="flex items-center space-x-2.5 bg-emerald-50 border border-emerald-200 px-4 py-2.5 rounded-xl shadow-sm">
@@ -88,47 +103,111 @@
                 </div>
             </div>
 
-            <!-- Section 2: Upah Teknisi (Dynamic Rows) -->
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-6 h-6 rounded-full bg-brandNavy text-white font-bold text-xs flex items-center justify-center">2</span>
-                        <h4 class="text-xs font-bold text-brandNavy uppercase tracking-wider">Upah Tim Teknisi (Multi-Personel)</h4>
-                    </div>
-                    <button type="button" @click="addTechnician()"
-                        class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-brandGreen hover:bg-brandGreenHover text-white text-xs font-semibold rounded-xl shadow-sm transition duration-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        <span>+ Tambah Teknisi</span>
-                    </button>
+            <!-- Section 2: Upah Tim Teknisi (Sub-Sections: Senior & Junior) -->
+            <div class="space-y-6">
+                <div class="flex items-center space-x-2">
+                    <span class="w-6 h-6 rounded-full bg-brandNavy text-white font-bold text-xs flex items-center justify-center">2</span>
+                    <h4 class="text-xs font-bold text-brandNavy uppercase tracking-wider">Upah Tim Teknisi (Master Data)</h4>
                 </div>
 
-                <div class="bg-slate-50/70 border border-slate-200 p-5 rounded-2xl space-y-3">
-                    <template x-for="(tech, index) in technicians" :key="index">
-                        <div class="flex flex-col sm:flex-row items-center gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="w-full sm:flex-1">
-                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nama Teknisi</label>
-                                <input type="text" :name="'technicians[' + index + '][technician_name]'" x-model="tech.technician_name" required
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200"
-                                    placeholder="Contoh: Ardy (Senior) / Abi (Junior)">
-                            </div>
-                            <div class="w-full sm:w-48">
-                                <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Upah (Rp)</label>
-                                <input type="number" :name="'technicians[' + index + '][wage_amount]'" x-model="tech.wage_amount" required min="0" step="0.01"
-                                    class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200"
-                                    placeholder="Contoh: 250000">
-                            </div>
-                            <div class="sm:pt-5 w-full sm:w-auto text-right">
-                                <button type="button" @click="removeTechnician(index)" x-show="technicians.length > 1"
-                                    class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition duration-200" title="Hapus baris ini">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                    </svg>
-                                </button>
-                            </div>
+                <!-- Sub-Section A: Teknisi Senior (Lead) -->
+                <div class="bg-slate-50/70 border border-slate-200 p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-wider">Teknisi Senior (Lead)</span>
+                            <span class="text-xs text-slate-400 font-medium" x-text="'Subtotal: Rp ' + new Intl.NumberFormat('id-ID').format(totalSeniorWages)"></span>
                         </div>
-                    </template>
+                        <button type="button" @click="addSenior()"
+                            class="inline-flex items-center space-x-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-sm transition duration-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            <span>+ Tambah Senior</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <template x-for="(senior, index) in seniors" :key="index">
+                            <div class="flex flex-col sm:flex-row items-center gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                                <div class="w-full sm:flex-1">
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Teknisi Senior</label>
+                                    <select :name="'technicians[' + index + '][technician_id]'" x-model="senior.technician_id" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200">
+                                        <option value="" disabled selected>-- Pilih Teknisi Senior --</option>
+                                        @foreach($seniorTechnicians as $tech)
+                                            <option value="{{ $tech->id }}">{{ $tech->name }} (Senior)</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="w-full sm:w-48">
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Upah (Rp)</label>
+                                    <input type="number" :name="'technicians[' + index + '][wage_amount]'" x-model="senior.wage_amount" required min="0" step="0.01"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200"
+                                        placeholder="Contoh: 300000">
+                                </div>
+                                <div class="sm:pt-5 w-full sm:w-auto text-right">
+                                    <button type="button" @click="removeSenior(index)" x-show="seniors.length > 0"
+                                        class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition duration-200" title="Hapus teknisi ini">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Sub-Section B: Teknisi Junior (Helper) -->
+                <div class="bg-slate-50/70 border border-slate-200 p-5 rounded-2xl space-y-4">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-200/60">
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">Teknisi Junior (Helper)</span>
+                            <span class="text-xs text-slate-400 font-medium" x-text="'Subtotal: Rp ' + new Intl.NumberFormat('id-ID').format(totalJuniorWages)"></span>
+                        </div>
+                        <button type="button" @click="addJunior()"
+                            class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-sm transition duration-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            <span>+ Tambah Junior</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <template x-for="(junior, index) in juniors" :key="index">
+                            <div class="flex flex-col sm:flex-row items-center gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                                <div class="w-full sm:flex-1">
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Pilih Teknisi Junior</label>
+                                    <select :name="'technicians[' + (seniors.length + index) + '][technician_id]'" x-model="junior.technician_id" required
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200">
+                                        <option value="" disabled selected>-- Pilih Teknisi Junior --</option>
+                                        @foreach($juniorTechnicians as $tech)
+                                            <option value="{{ $tech->id }}">{{ $tech->name }} (Junior)</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="w-full sm:w-48">
+                                    <label class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nominal Upah (Rp)</label>
+                                    <input type="number" :name="'technicians[' + (seniors.length + index) + '][wage_amount]'" x-model="junior.wage_amount" required min="0" step="0.01"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-brandGreen focus:bg-white transition duration-200"
+                                        placeholder="Contoh: 200000">
+                                </div>
+                                <div class="sm:pt-5 w-full sm:w-auto text-right">
+                                    <button type="button" @click="removeJunior(index)" x-show="juniors.length > 0"
+                                        class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition duration-200" title="Hapus teknisi ini">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="juniors.length === 0" class="text-xs text-slate-400 italic py-1">
+                            Belum ada teknisi junior ditambahkan. Klik "+ Tambah Junior" jika tim menyertakan helper/junior.
+                        </div>
+                    </div>
                 </div>
             </div>
 

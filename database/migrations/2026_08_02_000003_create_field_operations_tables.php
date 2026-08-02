@@ -27,7 +27,7 @@ return new class extends Migration
         Schema::create('field_operation_technicians', function (Blueprint $table) {
             $table->id();
             $table->foreignId('field_operation_id')->constrained('field_operations')->onDelete('cascade');
-            $table->string('technician_name');
+            $table->foreignId('technician_id')->constrained('technicians')->onDelete('cascade');
             $table->decimal('wage_amount', 15, 2);
             $table->timestamps();
         });

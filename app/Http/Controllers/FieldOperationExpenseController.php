@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\FieldOperation;
 use App\Models\FieldOperationTechnician;
+use App\Models\Technician;
 use App\Models\AuditLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +22,7 @@ class FieldOperationExpenseController extends Controller
         $search = $request->input('search');
 
         // Query Master Operasional Lapangan
-        $query = FieldOperation::with(['technicians', 'creator']);
+        $query = FieldOperation::with(['technicians.technician', 'creator']);
 
         if ($startDate && $endDate) {
             $query->whereBetween('operation_date', [$startDate, $endDate]);
@@ -36,8 +37,8 @@ class FieldOperationExpenseController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
-                  ->orWhereHas('technicians', function ($t) use ($search) {
-                      $t->where('technician_name', 'like', "%{$search}%");
+                  ->orWhereHas('technicians.technician', function ($t) use ($search) {
+                      $t->where('name', 'like', "%{$search}%");
                   });
             });
         }
@@ -79,7 +80,10 @@ class FieldOperationExpenseController extends Controller
      */
     public function create()
     {
-        return view('admin_ops.field_operations.create');
+        $seniorTechnicians = Technician::where('level', 'Senior')->orderBy('name')->get();
+        $juniorTechnicians = Technician::where('level', 'Junior')->orderBy('name')->get();
+
+        return view('admin_ops.field_operations.create', compact('seniorTechnicians', 'juniorTechnicians'));
     }
 
     /**
@@ -90,7 +94,7 @@ class FieldOperationExpenseController extends Controller
         $validated = $request->validate([
             'operation_date' => 'required|date',
             'technicians' => 'required|array|min:1',
-            'technicians.*.technician_name' => 'required|string|max:255',
+            'technicians.*.technician_id' => 'required|exists:technicians,id',
             'technicians.*.wage_amount' => 'required|numeric|min:0',
             'bensin_parkir_fee' => 'nullable|numeric|min:0',
             'entertain_fee' => 'nullable|numeric|min:0',
@@ -128,9 +132,9 @@ class FieldOperationExpenseController extends Controller
 
             // Create Detail Records (Technicians)
             foreach ($validated['technicians'] as $tech) {
-                if (!empty($tech['technician_name'])) {
+                if (!empty($tech['technician_id'])) {
                     $operation->technicians()->create([
-                        'technician_name' => $tech['technician_name'],
+                        'technician_id' => $tech['technician_id'],
                         'wage_amount' => (float) $tech['wage_amount'],
                     ]);
                 }

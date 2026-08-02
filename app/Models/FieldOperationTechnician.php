@@ -8,7 +8,7 @@ class FieldOperationTechnician extends Model
 {
     protected $fillable = [
         'field_operation_id',
-        'technician_name',
+        'technician_id',
         'wage_amount',
     ];
 
@@ -19,5 +19,10 @@ class FieldOperationTechnician extends Model
     public function fieldOperation()
     {
         return $this->belongsTo(FieldOperation::class, 'field_operation_id');
+    }
+
+    public function technician()
+    {
+        return $this->belongsTo(Technician::class, 'technician_id');
     }
 }
