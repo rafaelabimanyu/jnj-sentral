@@ -11,6 +11,7 @@ use App\Http\Controllers\MarketingFeeController;
 use App\Http\Controllers\MarketerController;
 use App\Http\Controllers\OverheadExpenseController;
 use App\Http\Controllers\FieldOperationExpenseController;
+use App\Http\Controllers\TechnicianController;
 
 // Rute Publik (Autentikasi)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -60,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/field-operations', [FieldOperationExpenseController::class, 'index'])->name('field_operations.index');
         Route::get('/field-operations/create', [FieldOperationExpenseController::class, 'create'])->name('field_operations.create');
         Route::post('/field-operations', [FieldOperationExpenseController::class, 'store'])->name('field_operations.store');
+        Route::resource('technicians', TechnicianController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 
     // Route Group untuk Admin Website / Developer
