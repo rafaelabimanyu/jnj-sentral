@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('marketing_fees', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
-            $table->string('marketer_name');
-            $table->string('client_name');
+            $table->foreignId('marketer_id')->constrained('marketers')->onDelete('cascade');
             $table->decimal('project_value', 12, 2);
             $table->decimal('fee_percentage', 5, 2);
             $table->decimal('fee_amount', 12, 2);

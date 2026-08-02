@@ -11,8 +11,7 @@ class MarketingFee extends Model
 
     protected $fillable = [
         'user_id',
-        'marketer_name',
-        'client_name',
+        'marketer_id',
         'project_value',
         'fee_percentage',
         'fee_amount',
@@ -30,5 +29,10 @@ class MarketingFee extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function marketer()
+    {
+        return $this->belongsTo(Marketer::class, 'marketer_id');
     }
 }

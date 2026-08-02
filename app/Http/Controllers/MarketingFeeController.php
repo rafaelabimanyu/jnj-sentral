@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\MarketingFee;
+use App\Models\Marketer;
 use App\Models\AuditLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -36,16 +37,18 @@ class MarketingFeeController extends Controller
         $pendingFeesCount = MarketingFee::where('status', 'Pending')->count();
 
         // Metric 3: Top Marketer
-        $topMarketerData = MarketingFee::select('marketer_name', DB::raw('SUM(fee_amount) as total_fees'), DB::raw('COUNT(*) as total_deals'))
-            ->groupBy('marketer_name')
+        $topMarketerData = MarketingFee::select('marketer_id', DB::raw('SUM(fee_amount) as total_fees'), DB::raw('COUNT(*) as total_deals'))
+            ->with('marketer')
+            ->groupBy('marketer_id')
             ->orderByDesc('total_fees')
             ->first();
 
-        $topMarketer = $topMarketerData ? $topMarketerData->marketer_name : 'Belum Ada';
+        $topMarketer = ($topMarketerData && $topMarketerData->marketer) ? $topMarketerData->marketer->name : 'Belum Ada';
         $topMarketerFees = $topMarketerData ? $topMarketerData->total_fees : 0;
 
         // List Riwayat Marketing Fees
-        $fees = MarketingFee::with('creator')->orderBy('created_at', 'desc')->paginate(15);
+        $fees = MarketingFee::with(['creator', 'marketer'])->orderBy('created_at', 'desc')->paginate(15);
+        $marketers = Marketer::orderBy('name')->get();
 
         return view('admin_ops.marketing_fees', compact(
             'totalPaidThisMonth',
@@ -53,7 +56,8 @@ class MarketingFeeController extends Controller
             'pendingFeesCount',
             'topMarketer',
             'topMarketerFees',
-            'fees'
+            'fees',
+            'marketers'
         ));
     }
 
@@ -63,8 +67,7 @@ class MarketingFeeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'marketer_name' => 'required|string|max:255',
-            'client_name' => 'required|string|max:255',
+            'marketer_id' => 'required|exists:marketers,id',
             'project_value' => 'required|numeric|min:0',
             'fee_percentage' => 'required|numeric|min:0|max:100',
             'status' => 'required|in:Pending,Paid',
@@ -82,8 +85,7 @@ class MarketingFeeController extends Controller
 
             $marketingFee = MarketingFee::create([
                 'user_id' => $request->user()->id,
-                'marketer_name' => $validated['marketer_name'],
-                'client_name' => $validated['client_name'],
+                'marketer_id' => $validated['marketer_id'],
                 'project_value' => $projectValue,
                 'fee_percentage' => $feePercentage,
                 'fee_amount' => $feeAmount,

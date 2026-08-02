@@ -8,6 +8,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MarketingFeeController;
+use App\Http\Controllers\MarketerController;
 use App\Http\Controllers\OverheadExpenseController;
 
 // Rute Publik (Autentikasi)
@@ -48,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/marketing-fees', [MarketingFeeController::class, 'index'])->name('marketing_fees.index');
         Route::post('/marketing-fees', [MarketingFeeController::class, 'store'])->name('marketing_fees.store');
         Route::patch('/marketing-fees/{marketingFee}/pay', [MarketingFeeController::class, 'markAsPaid'])->name('marketing_fees.pay');
+        Route::resource('marketers', MarketerController::class)->only(['index', 'store', 'update', 'destroy']);
 
         // Module 2: Overhead & Manajemen Ekstra
         Route::get('/overhead-expenses', [OverheadExpenseController::class, 'index'])->name('overhead_expenses.index');
