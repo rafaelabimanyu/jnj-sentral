@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\FieldOperation;
 use App\Models\FieldOperationTechnician;
-use App\Models\Technician;
+use App\Models\Employee;
 use App\Models\AuditLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -80,8 +80,17 @@ class FieldOperationExpenseController extends Controller
      */
     public function create()
     {
-        $seniorTechnicians = Technician::where('level', 'Senior')->orderBy('name')->get();
-        $juniorTechnicians = Technician::where('level', 'Junior')->orderBy('name')->get();
+        $seniorTechnicians = Employee::where('role', 'Teknisi')
+            ->where('level', 'Senior')
+            ->where('status', 'Active')
+            ->orderBy('name')
+            ->get();
+
+        $juniorTechnicians = Employee::where('role', 'Teknisi')
+            ->where('level', 'Junior')
+            ->where('status', 'Active')
+            ->orderBy('name')
+            ->get();
 
         return view('admin_ops.field_operations.create', compact('seniorTechnicians', 'juniorTechnicians'));
     }
@@ -94,7 +103,7 @@ class FieldOperationExpenseController extends Controller
         $validated = $request->validate([
             'operation_date' => 'required|date',
             'technicians' => 'required|array|min:1',
-            'technicians.*.technician_id' => 'required|exists:technicians,id',
+            'technicians.*.technician_id' => 'required|exists:employees,id',
             'technicians.*.wage_amount' => 'required|numeric|min:0',
             'bensin_parkir_fee' => 'nullable|numeric|min:0',
             'entertain_fee' => 'nullable|numeric|min:0',
@@ -134,7 +143,7 @@ class FieldOperationExpenseController extends Controller
             foreach ($validated['technicians'] as $tech) {
                 if (!empty($tech['technician_id'])) {
                     $operation->technicians()->create([
-                        'technician_id' => $tech['technician_id'],
+                        'employee_id' => $tech['technician_id'],
                         'wage_amount' => (float) $tech['wage_amount'],
                     ]);
                 }

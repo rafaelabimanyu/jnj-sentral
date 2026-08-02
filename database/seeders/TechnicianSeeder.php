@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Technician;
+use App\Models\Employee;
 
 class TechnicianSeeder extends Seeder
 {
@@ -12,24 +12,34 @@ class TechnicianSeeder extends Seeder
      */
     public function run(): void
     {
-        $technicians = [
-            // Senior Leads
-            ['name' => 'Ardy', 'level' => 'Senior'],
-            ['name' => 'Budi', 'level' => 'Senior'],
-            ['name' => 'Dedi', 'level' => 'Senior'],
-            ['name' => 'Fajar', 'level' => 'Senior'],
+        $employees = [
+            // Admin & Office Staff
+            ['name' => 'Wibowo Pratikno', 'role' => 'Management', 'level' => 'Lead', 'status' => 'Active'],
+            ['name' => 'Siti Rahma', 'role' => 'Admin', 'level' => 'Staff', 'status' => 'Active'],
+            ['name' => 'Dewi Lestari', 'role' => 'Customer Service', 'level' => 'Staff', 'status' => 'Active'],
+            ['name' => 'Rian Hidayat', 'role' => 'Marketing', 'level' => 'Staff', 'status' => 'Active'],
 
-            // Junior Helpers
-            ['name' => 'Abi', 'level' => 'Junior'],
-            ['name' => 'Candra', 'level' => 'Junior'],
-            ['name' => 'Eko', 'level' => 'Junior'],
-            ['name' => 'Gilang', 'level' => 'Junior'],
+            // Senior Leads (Teknisi)
+            ['name' => 'Ardy', 'role' => 'Teknisi', 'level' => 'Senior', 'status' => 'Active'],
+            ['name' => 'Budi', 'role' => 'Teknisi', 'level' => 'Senior', 'status' => 'Active'],
+            ['name' => 'Dedi', 'role' => 'Teknisi', 'level' => 'Senior', 'status' => 'Active'],
+            ['name' => 'Fajar', 'role' => 'Teknisi', 'level' => 'Senior', 'status' => 'Active'],
+
+            // Junior Helpers (Teknisi)
+            ['name' => 'Abi', 'role' => 'Teknisi', 'level' => 'Junior', 'status' => 'Active'],
+            ['name' => 'Candra', 'role' => 'Teknisi', 'level' => 'Junior', 'status' => 'Active'],
+            ['name' => 'Eko', 'role' => 'Teknisi', 'level' => 'Junior', 'status' => 'Active'],
+            ['name' => 'Gilang', 'role' => 'Teknisi', 'level' => 'Junior', 'status' => 'Active'],
         ];
 
-        foreach ($technicians as $tech) {
-            Technician::updateOrCreate(
-                ['name' => $tech['name']],
-                ['level' => $tech['level']]
+        foreach ($employees as $emp) {
+            Employee::updateOrCreate(
+                ['name' => $emp['name']],
+                [
+                    'role'   => $emp['role'],
+                    'level'  => $emp['level'],
+                    'status' => $emp['status'],
+                ]
             );
         }
     }

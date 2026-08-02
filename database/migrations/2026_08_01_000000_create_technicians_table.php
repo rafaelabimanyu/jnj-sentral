@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('technicians', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('level', ['Senior', 'Junior']);
+            $table->string('level')->default('Senior');
             $table->timestamps();
             $table->softDeletes();
         });

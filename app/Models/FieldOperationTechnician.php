@@ -8,7 +8,8 @@ class FieldOperationTechnician extends Model
 {
     protected $fillable = [
         'field_operation_id',
-        'technician_id',
+        'employee_id',
+        'technician_id', // for backward compatibility during transitions
         'wage_amount',
     ];
 
@@ -21,8 +22,16 @@ class FieldOperationTechnician extends Model
         return $this->belongsTo(FieldOperation::class, 'field_operation_id');
     }
 
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id');
+    }
+
+    /**
+     * Alias relationship for backward compatibility with field operation components.
+     */
     public function technician()
     {
-        return $this->belongsTo(Technician::class, 'technician_id');
+        return $this->belongsTo(Employee::class, 'employee_id');
     }
 }

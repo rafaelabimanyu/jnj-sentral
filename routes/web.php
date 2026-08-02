@@ -11,7 +11,7 @@ use App\Http\Controllers\MarketingFeeController;
 use App\Http\Controllers\MarketerController;
 use App\Http\Controllers\OverheadExpenseController;
 use App\Http\Controllers\FieldOperationExpenseController;
-use App\Http\Controllers\TechnicianController;
+use App\Http\Controllers\EmployeeController;
 
 // Rute Publik (Autentikasi)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -57,11 +57,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/overhead-expenses', [OverheadExpenseController::class, 'index'])->name('overhead_expenses.index');
         Route::post('/overhead-expenses', [OverheadExpenseController::class, 'store'])->name('overhead_expenses.store');
 
-        // Module 3: Operasional Lapangan & Teknisi
+        // Module 3: Operasional Lapangan & Karyawan
         Route::get('/field-operations', [FieldOperationExpenseController::class, 'index'])->name('field_operations.index');
         Route::get('/field-operations/create', [FieldOperationExpenseController::class, 'create'])->name('field_operations.create');
         Route::post('/field-operations', [FieldOperationExpenseController::class, 'store'])->name('field_operations.store');
-        Route::resource('technicians', TechnicianController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('employees', EmployeeController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('/technicians', function () {
+            return redirect()->route('admin_ops.employees.index');
+        });
     });
 
     // Route Group untuk Admin Website / Developer

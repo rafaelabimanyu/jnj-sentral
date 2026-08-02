@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\FieldOperation;
-use App\Models\Technician;
+use App\Models\Employee;
 use App\Models\User;
 
 class FieldOperationSeeder extends Seeder
@@ -17,15 +17,15 @@ class FieldOperationSeeder extends Seeder
         $user = User::first();
         $userId = $user ? $user->id : null;
 
-        // Fetch seeded technician models by name for easy lookup
-        $ardy = Technician::where('name', 'Ardy')->first();
-        $abi = Technician::where('name', 'Abi')->first();
-        $budi = Technician::where('name', 'Budi')->first();
-        $candra = Technician::where('name', 'Candra')->first();
-        $dedi = Technician::where('name', 'Dedi')->first();
-        $eko = Technician::where('name', 'Eko')->first();
-        $fajar = Technician::where('name', 'Fajar')->first();
-        $gilang = Technician::where('name', 'Gilang')->first();
+        // Fetch seeded employee models by name for easy lookup
+        $ardy = Employee::where('name', 'Ardy')->first();
+        $abi = Employee::where('name', 'Abi')->first();
+        $budi = Employee::where('name', 'Budi')->first();
+        $candra = Employee::where('name', 'Candra')->first();
+        $dedi = Employee::where('name', 'Dedi')->first();
+        $eko = Employee::where('name', 'Eko')->first();
+        $fajar = Employee::where('name', 'Fajar')->first();
+        $gilang = Employee::where('name', 'Gilang')->first();
 
         $operations = [
             [
@@ -35,8 +35,8 @@ class FieldOperationSeeder extends Seeder
                 'bonus_fee' => 0.00,
                 'description' => 'Pembersihan & flushing saluran pipa utama gedung (RS Abdi Waluyo).',
                 'technicians' => [
-                    ['technician_id' => $ardy ? $ardy->id : 1, 'wage_amount' => 300000.00],
-                    ['technician_id' => $abi ? $abi->id : 5, 'wage_amount' => 200000.00],
+                    ['employee_id' => $ardy ? $ardy->id : 5, 'wage_amount' => 300000.00],
+                    ['employee_id' => $abi ? $abi->id : 9, 'wage_amount' => 200000.00],
                 ]
             ],
             [
@@ -46,8 +46,8 @@ class FieldOperationSeeder extends Seeder
                 'bonus_fee' => 150000.00,
                 'description' => 'Meeting akuisisi contract maintenance + pengerjaan lembur grease trap dapur.',
                 'technicians' => [
-                    ['technician_id' => $budi ? $budi->id : 2, 'wage_amount' => 350000.00],
-                    ['technician_id' => $candra ? $candra->id : 6, 'wage_amount' => 180000.00],
+                    ['employee_id' => $budi ? $budi->id : 6, 'wage_amount' => 350000.00],
+                    ['employee_id' => $candra ? $candra->id : 10, 'wage_amount' => 180000.00],
                 ]
             ],
             [
@@ -57,8 +57,8 @@ class FieldOperationSeeder extends Seeder
                 'bonus_fee' => 200000.00,
                 'description' => 'Pengerjaan 2 lokasi tambahan manhole dapur resto.',
                 'technicians' => [
-                    ['technician_id' => $dedi ? $dedi->id : 3, 'wage_amount' => 300000.00],
-                    ['technician_id' => $eko ? $eko->id : 7, 'wage_amount' => 200000.00],
+                    ['employee_id' => $dedi ? $dedi->id : 7, 'wage_amount' => 300000.00],
+                    ['employee_id' => $eko ? $eko->id : 11, 'wage_amount' => 200000.00],
                 ]
             ],
             [
@@ -68,9 +68,9 @@ class FieldOperationSeeder extends Seeder
                 'bonus_fee' => 300000.00,
                 'description' => 'Shift malam lembur mampet parah saluran limbah utama.',
                 'technicians' => [
-                    ['technician_id' => $ardy ? $ardy->id : 1, 'wage_amount' => 400000.00],
-                    ['technician_id' => $fajar ? $fajar->id : 4, 'wage_amount' => 250000.00],
-                    ['technician_id' => $gilang ? $gilang->id : 8, 'wage_amount' => 180000.00],
+                    ['employee_id' => $ardy ? $ardy->id : 5, 'wage_amount' => 400000.00],
+                    ['employee_id' => $fajar ? $fajar->id : 8, 'wage_amount' => 250000.00],
+                    ['employee_id' => $gilang ? $gilang->id : 12, 'wage_amount' => 180000.00],
                 ]
             ],
             [
@@ -80,7 +80,7 @@ class FieldOperationSeeder extends Seeder
                 'bonus_fee' => 0.00,
                 'description' => 'Inspection & preventive maintenance bulanan area basement hospital.',
                 'technicians' => [
-                    ['technician_id' => $budi ? $budi->id : 2, 'wage_amount' => 300000.00],
+                    ['employee_id' => $budi ? $budi->id : 6, 'wage_amount' => 300000.00],
                 ]
             ]
         ];
