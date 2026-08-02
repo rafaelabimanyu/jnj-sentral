@@ -10,6 +10,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MarketingFeeController;
 use App\Http\Controllers\MarketerController;
 use App\Http\Controllers\OverheadExpenseController;
+use App\Http\Controllers\FieldOperationExpenseController;
 
 // Rute Publik (Autentikasi)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -54,6 +55,10 @@ Route::middleware(['auth'])->group(function () {
         // Module 2: Overhead & Manajemen Ekstra
         Route::get('/overhead-expenses', [OverheadExpenseController::class, 'index'])->name('overhead_expenses.index');
         Route::post('/overhead-expenses', [OverheadExpenseController::class, 'store'])->name('overhead_expenses.store');
+
+        // Module 3: Operasional Lapangan & Teknisi
+        Route::get('/field-operations', [FieldOperationExpenseController::class, 'index'])->name('field_operations.index');
+        Route::post('/field-operations', [FieldOperationExpenseController::class, 'store'])->name('field_operations.store');
     });
 
     // Route Group untuk Admin Website / Developer
