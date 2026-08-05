@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('incomes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('clients')->onDelete('restrict');
+            $table->string('client_name');
+            $table->string('client_category')->nullable();
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->date('service_date');
             $table->text('service_detail');

@@ -12,7 +12,7 @@ class Expense extends Model
     protected $fillable = [
         'user_id',
         'income_id',
-        'client_id',
+        'client_name',
         'category',
         'amount',
         'description',
@@ -28,11 +28,6 @@ class Expense extends Model
     public function income()
     {
         return $this->belongsTo(Income::class, 'income_id');
-    }
-
-    public function client()
-    {
-        return $this->belongsTo(Client::class, 'client_id');
     }
 
     public function approver()

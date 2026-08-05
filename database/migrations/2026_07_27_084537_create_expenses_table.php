@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
             $table->foreignId('income_id')->nullable()->constrained('incomes')->onDelete('restrict');
-            $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('restrict');
+            $table->string('client_name')->nullable();
             $table->enum('category', [
                 'ads',
                 'entertain',

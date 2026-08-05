@@ -17,11 +17,21 @@ class OverheadExpense extends Model
         'description',
         'receipt_path',
         'expense_date',
+        'is_prorated',
+        'proration_days',
+        'daily_amount',
+        'proration_start_date',
+        'proration_end_date',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
         'expense_date' => 'date',
+        'is_prorated' => 'boolean',
+        'proration_days' => 'integer',
+        'daily_amount' => 'decimal:2',
+        'proration_start_date' => 'date',
+        'proration_end_date' => 'date',
     ];
 
     public function creator()

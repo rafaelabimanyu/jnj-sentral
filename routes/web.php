@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
-use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\MarketingFeeController;
@@ -39,10 +38,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:admin_ops'])->prefix('admin-ops')->name('admin_ops.')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'adminOps'])->name('dashboard');
         Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
-
-        // Manajemen Klien
-        Route::resource('clients', ClientController::class)->only(['index', 'store', 'destroy']);
-
+        
         // Transaksi Pendapatan & Pengeluaran
         Route::resource('expenses', ExpenseController::class)->only(['store', 'update', 'index']);
         Route::resource('incomes', IncomeController::class)->only(['store', 'update', 'index']);

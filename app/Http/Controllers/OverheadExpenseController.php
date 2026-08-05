@@ -16,11 +16,35 @@ class OverheadExpenseController extends Controller
      */
     public function index()
     {
-        $totalOverhead = OverheadExpense::sum('amount');
+        $today = Carbon::today()->toDateString();
 
-        $infraTotal = OverheadExpense::where('category', 'Infrastruktur (WiFi, Listrik, Kantor)')->sum('amount');
-        $welfareTotal = OverheadExpense::where('category', 'Kesejahteraan (Family Gathering dll)')->sum('amount');
-        $unexpectedTotal = OverheadExpense::where('category', 'Biaya Tak Terduga (Darurat)')->sum('amount');
+        // Ambil pengeluaran prorata yang aktif hari ini OR pengeluaran sekali bayar hari ini
+        $activeOverheads = OverheadExpense::where(function ($query) use ($today) {
+            $query->where('is_prorated', true)
+                ->whereDate('proration_start_date', '<=', $today)
+                ->whereDate('proration_end_date', '>=', $today);
+        })->orWhere(function ($query) use ($today) {
+            $query->where('is_prorated', false)
+                ->whereDate('expense_date', $today);
+        })->get();
+
+        $totalOverhead = 0;
+        $infraTotal = 0;
+        $welfareTotal = 0;
+        $unexpectedTotal = 0;
+
+        foreach ($activeOverheads as $item) {
+            $dailyCost = $item->is_prorated ? $item->daily_amount : $item->amount;
+            $totalOverhead += $dailyCost;
+
+            if ($item->category === 'Infrastruktur (WiFi, Listrik, Kantor)') {
+                $infraTotal += $dailyCost;
+            } elseif ($item->category === 'Kesejahteraan (Family Gathering dll)') {
+                $welfareTotal += $dailyCost;
+            } elseif ($item->category === 'Biaya Tak Terduga (Darurat)') {
+                $unexpectedTotal += $dailyCost;
+            }
+        }
 
         $infraPercentage = $totalOverhead > 0 ? round(($infraTotal / $totalOverhead) * 100, 1) : 0;
         $welfarePercentage = $totalOverhead > 0 ? round(($welfareTotal / $totalOverhead) * 100, 1) : 0;
@@ -55,6 +79,8 @@ class OverheadExpenseController extends Controller
             'description' => 'nullable|string',
             'expense_date' => 'required|date',
             'receipt' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:5120',
+            'is_prorated' => 'required|boolean',
+            'proration_days' => 'required_if:is_prorated,1|nullable|integer|in:26,30',
         ]);
 
         DB::transaction(function () use ($request, $validated) {
@@ -67,6 +93,12 @@ class OverheadExpenseController extends Controller
                 $receiptPath = 'uploads/receipts/' . $filename;
             }
 
+            $isProrated = (bool) $validated['is_prorated'];
+            $prorationDays = $isProrated ? (int) $validated['proration_days'] : null;
+            $dailyAmount = $isProrated ? ($validated['amount'] / $prorationDays) : null;
+            $startDate = $isProrated ? $validated['expense_date'] : null;
+            $endDate = $isProrated ? Carbon::parse($validated['expense_date'])->addDays($prorationDays)->toDateString() : null;
+
             $overhead = OverheadExpense::create([
                 'user_id' => $request->user()->id,
                 'category' => $validated['category'],
@@ -75,6 +107,11 @@ class OverheadExpenseController extends Controller
                 'description' => $validated['description'] ?? null,
                 'receipt_path' => $receiptPath,
                 'expense_date' => $validated['expense_date'],
+                'is_prorated' => $isProrated,
+                'proration_days' => $prorationDays,
+                'daily_amount' => $dailyAmount,
+                'proration_start_date' => $startDate,
+                'proration_end_date' => $endDate,
             ]);
 
             AuditLog::create([

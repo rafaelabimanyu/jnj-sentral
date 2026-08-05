@@ -69,7 +69,7 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($incomesByClient as $income)
                         <tr>
-                            <td class="py-3 px-4 font-bold text-slate-700">{{ $income->client->name ?? 'Lainnya' }}</td>
+                            <td class="py-3 px-4 font-bold text-slate-700">{{ $income->client_name ?? 'Lainnya' }}</td>
                             <td class="py-3 px-4 text-right font-bold text-brandGreen">Rp {{ number_format($income->total, 0, ',', '.') }}</td>
                         </tr>
                     @empty

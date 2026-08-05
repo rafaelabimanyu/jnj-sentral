@@ -10,17 +10,13 @@ class Income extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'client_id',
+        'client_name',
+        'client_category',
         'user_id',
         'service_date',
         'service_detail',
         'gross_amount',
     ];
-
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
 
     public function creator()
     {

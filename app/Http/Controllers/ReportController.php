@@ -42,11 +42,10 @@ class ReportController extends Controller
             ->get();
 
         // Rincian Pendapatan per Klien
-        $incomesByClient = Income::select('client_id', DB::raw('SUM(gross_amount) as total'))
-            ->with('client')
+        $incomesByClient = Income::select('client_name', DB::raw('SUM(gross_amount) as total'))
             ->whereMonth('service_date', $month)
             ->whereYear('service_date', $year)
-            ->groupBy('client_id')
+            ->groupBy('client_name')
             ->get();
 
         return view('owner.reports', compact(

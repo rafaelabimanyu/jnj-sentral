@@ -15,9 +15,19 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
+        // Sanitize amount from Rupiah format (e.g. "Rp 150.000" -> 150000)
+        if ($request->has('amount')) {
+            $rawAmount = $request->amount;
+            $cleanAmount = str_replace(['Rp', '.', ' '], '', $rawAmount);
+            $cleanAmount = str_replace(',', '.', $cleanAmount);
+            $request->merge([
+                'amount' => is_numeric($cleanAmount) ? (float) $cleanAmount : $rawAmount
+            ]);
+        }
+
         $request->validate([
             'income_id' => 'nullable|exists:incomes,id',
-            'client_id' => 'nullable|exists:clients,id',
+            'client_name' => 'nullable|string|max:255',
             'category' => 'required|in:ads,entertain,fuel_parking,technician_wage,bonus_location,bonus_night',
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string',
@@ -29,7 +39,7 @@ class ExpenseController extends Controller
         $expense = Expense::create([
             'user_id' => $request->user()->id, // Admin pencatat
             'income_id' => $request->income_id,
-            'client_id' => $request->client_id,
+            'client_name' => $request->client_name,
             'category' => $request->category,
             'amount' => $request->amount,
             'description' => $request->description,
@@ -67,9 +77,19 @@ class ExpenseController extends Controller
             abort(403, 'Batas waktu koreksi telah habis (Maksimal 24 jam).');
         }
 
+        // Sanitize amount from Rupiah format
+        if ($request->has('amount')) {
+            $rawAmount = $request->amount;
+            $cleanAmount = str_replace(['Rp', '.', ' '], '', $rawAmount);
+            $cleanAmount = str_replace(',', '.', $cleanAmount);
+            $request->merge([
+                'amount' => is_numeric($cleanAmount) ? (float) $cleanAmount : $rawAmount
+            ]);
+        }
+
         $request->validate([
             'income_id' => 'nullable|exists:incomes,id',
-            'client_id' => 'nullable|exists:clients,id',
+            'client_name' => 'nullable|string|max:255',
             'category' => 'required|in:ads,entertain,fuel_parking,technician_wage,bonus_location,bonus_night',
             'amount' => 'required|numeric|min:0',
             'description' => 'required|string',
@@ -78,7 +98,7 @@ class ExpenseController extends Controller
         $oldValues = $expense->toArray();
 
         // Update data pengeluaran sementara
-        $expense->fill($request->only(['income_id', 'client_id', 'category', 'amount', 'description']));
+        $expense->fill($request->only(['income_id', 'client_name', 'category', 'amount', 'description']));
         $expense->status = 'approved';
         $expense->save();
 

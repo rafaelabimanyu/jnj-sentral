@@ -20,7 +20,7 @@ class ResetTransactionData extends Command
      *
      * @var string
      */
-    protected $description = 'Menghapus (truncate) semua data uji coba di tabel incomes, expenses, dan audit_logs. Data users dan clients tetap dipertahankan.';
+    protected $description = 'Menghapus (truncate) semua data uji coba di tabel incomes, expenses, dan audit_logs. Data users tetap dipertahankan.';
 
     /**
      * Execute the console command.
